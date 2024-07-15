@@ -1,0 +1,375 @@
+
+
+# Vault Helm Chart Value Overrides
+global:
+  enabled: true
+  tlsDisable: false
+
+injector:
+  enabled: true
+  # Use the Vault K8s Image https://github.com/hashicorp/vault-k8s/
+  image:
+    repository: "hashicorp/vault-k8s"
+    tag: "latest"
+
+  resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 256Mi
+        cpu: 250m
+
+
+certs:
+
+    # caBundle is a base64-encoded PEM-encoded certificate bundle for the
+    # CA that the webhook serves. This must
+    # be set if secretName is non-null.
+    # Here we have pasted the ca.crt encoded in base64
+    caBundle: "<<ca_bundle>>"
+
+    # secretName is the name of the secret that has the TLS certificate and
+    # private key to serve the injector webhook. If this is null, then the
+    # injector will default to its automatic management mode that will assign
+    # a service account to the injector to generate its own certificates.
+    secretName: tls-server
+
+    # certName and keyName are the names of the files within the secret for
+    # the TLS cert and private key, respectively. These have reasonable
+    # defaults but can be customized if necessary.
+    certName: vault.crt
+    keyName: vault.key
+
+
+
+server:
+
+  enabled: true
+
+  # Use the Enterprise Image
+  image:
+    repository: "hashicorp/vault-enterprise"
+    tag: "1.5.0_ent"
+
+  # These Resource Limits are in line with node requirements in the
+  # Vault Reference Architecture for a Small Cluster
+  # resources:
+  #   requests:
+  #     memory: 8Gi
+  #     cpu: 2000m
+  #   limits:
+  #     memory: 16Gi
+  #     cpu: 2000m
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 500m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+  # For HA configuration and because we need to manually init the vault,
+  # we need to define custom readiness/liveness Probe settings
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 60
+
+  # extraEnvironmentVars is a list of extra environment variables to set with the stateful set. These could be
+  # used to include variables required for auto-unseal.
+  extraEnvironmentVars:
+    VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
+
+  # extraVolumes is a list of extra volumes to mount. These will be exposed
+  # to Vault in the path `/vault/userconfig/<name>/`.
+  extraVolumes:
+    - type: secret
+      name: tls-server
+      mountPath: /vault/userconfig/tls-server
+    - type: secret
+      name: tls-ca
+      mountPath: /vault/userconfig/tls-ca
+    # - type: secret
+    #   name: kms-creds
+
+  # This configures the Vault Statefulset to create a PVC for audit logs.
+  # See https://www.vaultproject.io/docs/audit/index.html to know more
+  auditStorage:
+    enabled: true
+
+  standalone:
+    enabled: false
+
+  # Run Vault in "HA" mode.
+  ha:
+    enabled: true
+    replicas: 5
+    raft:
+      enabled: true
+      setNodeId: true
+
+      config: |
+        ui = true
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/vault/userconfig/tls-server/vault.crt"
+          tls_key_file = "/vault/userconfig/tls-server/vault.key"
+          tls_client_ca_file = "/vault/userconfig/tls-ca/ca.crt"
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+            retry_join {
+            leader_api_addr = "https://vault-0.vault:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-1.vault:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-2.vault:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+          }
+          retry_join {
+              leader_api_addr = "https://vault-3.vault:8200"
+              leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+              leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+              leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+          }
+          retry_join {
+              leader_api_addr = "https://vault-4.vault:8200"
+              leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+              leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+              leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+          }
+
+        }
+
+        service_registration "kubernetes" {}
+
+  service:
+    type: ClusterIP
+    clusterIP: None
+    name: vault
+
+# Vault UI
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"
+  serviceNodePort: null
+  externalPort: 8200
+
+  # For Added Security, edit the below
+  #loadBalancerSourceRanges:
+  #   - < Your IP RANGE Ex. 10.0.0.0/16 >
+  #   - < YOUR SINGLE IP Ex. 1.78.23.3/32 >
+
+
+
+
+
+
+
+
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Vault Helm Chart Value Overrides
+# global:
+#   enabled: true
+#   tlsDisable: false
+
+# injector:
+#   enabled: true
+#   # Use the Vault K8s Image https://github.com/hashicorp/vault-k8s/
+#   image:
+#     repository: "hashicorp/vault-k8s"
+#     tag: "latest"
+
+#   resources:
+#       requests:
+#         memory: 256Mi
+#         cpu: 250m
+#       limits:
+#         memory: 256Mi
+#         cpu: 250m
+
+
+# certs:
+#     # secretName is the name of the secret that has the TLS certificate and
+#     # private key to serve the injector webhook. If this is null, then the
+#     # injector will default to its automatic management mode that will assign
+#     # a service account to the injector to generate its own certificates.
+#     secretName: tls-server
+
+#     # caBundle is a base64-encoded PEM-encoded certificate bundle for the
+#     # CA that the webhook serves. This must
+#     # be set if secretName is non-null.
+#     # Here we have pasted the ca.crt encoded in base64
+#     caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRJek1EVXdNVEE1TWpZME5Gb1hEVE16TURReU9UQTVNalkwTkZvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS2p2Ck5MNmExdHlJVXJiUE8wblliRktjbnFoOHFPL2xxVjhRSm9zQjFUWi9PRGMrZ2V0d2hub0Fya25JclpLK2xqSU4KR2VaR1M3TDVoTzFiaEZ6UU5wOUxyNUNQR3NjMjk0NEJnRjV0T2pYMUJ4RGpPTGllamV1WFJKQmV3Z2xpNGxregp5SVNGdmpzQldTR29WVm1NbTdqVGllSXFYbXNwVnNvK3JxZmU3OGVlbzdMNExkMTIycUMvRWhraWRYNWdIVitIClRadXFUQW1nanl1cGtjR1h5K3dpQ3pVM20yMTBuQzZEeUxQSGRlLzZmRGYwS0ozVWpTU21Dc2g0QzJpT0pUeWEKZ0pDQU9uakRod0VyMnNTbWFpN3JNbXRHUlhveWxScjdTOW9iY24vdjdEM2JnaVpnR0xrWndtVVBaZkRYbGVIeApQSnh2Y1dGd2V5RXJBZTMyU2JrQ0F3RUFBYU5oTUY4d0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVcKQkJRcTZJcEhHc0QwaC9tYnRWMWtKQjNybVhrYm96QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFqSEZ1QTF2KwpiZXdERGVEcXdLWlkyaFFmSHFUZ0JWcllEZUs4Mzl6VzNXQ3JZclprRExUNlZQUHNKSllrRFhyTXh0WTZSZkJkCjFmNzdTZDJCcCtWVmdxRVVlUS9GYkZ3aHVnRVhIeEhXSjYxem9mbVVhK093V0FoczE5dUk2eE1MZ3VFTXZnWloKVHNyQ09ybmh5RW8xUDY4NjR6STZQbzVwNGRtWWdFL0RBMExwb0pSY3F5a0hIV1lvYlV3T0daaStGZHZBZUFENwpqQnQ0dEtqS0Z5eGhxZXpCTklBeG9BalFYREhWaEYyMEtlc3JDQ0E0ZUkveVU4bnJmNnQydzAxQ0lhemV5dnJ0CiszajliTENRR3lzOWpSSHlicENoenk4cy9ObkVKS3doeUhuekEzWWJnQ0xwcktNNU8ybjBKTTBvVjkrUU5jU28KNUNGZ2Z5MndoM0FpWnc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+
+#     # certName and keyName are the names of the files within the secret for
+#     # the TLS cert and private key, respectively. These have reasonable
+#     # defaults but can be customized if necessary.
+#     certName: vault.crt
+#     keyName: vault.key
+
+
+
+# server:
+#   # Use the Enterprise Image
+#   image:
+#     repository: "hashicorp/vault-enterprise"
+#     tag: "1.5.0_ent"
+
+#   # These Resource Limits are in line with node requirements in the
+#   # Vault Reference Architecture for a Small Cluster
+#   # resources:
+#   #   requests:
+#   #     memory: 8Gi
+#   #     cpu: 2000m
+#   #   limits:
+#   #     memory: 16Gi
+#   #     cpu: 2000m
+#   resources:
+#     requests:
+#       memory: 2Gi
+#       cpu: 2000m
+#     limits:
+#       memory: 4Gi
+#       cpu: 2000m
+
+#   # For HA configuration and because we need to manually init the vault,
+#   # we need to define custom readiness/liveness Probe settings
+#   readinessProbe:
+#     enabled: true
+#     path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+#   livenessProbe:
+#     enabled: true
+#     path: "/v1/sys/health?standbyok=true"
+#     initialDelaySeconds: 60
+
+#   # extraEnvironmentVars is a list of extra environment variables to set with the stateful set. These could be
+#   # used to include variables required for auto-unseal.
+#   extraEnvironmentVars:
+#     VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
+
+#   # extraVolumes is a list of extra volumes to mount. These will be exposed
+#   # to Vault in the path `/vault/userconfig/<name>/`.
+#   extraVolumes:
+#     - type: secret
+#       name: tls-server
+#       mountPath: /vault/userconfig/tls-server
+#     - type: secret
+#       name: tls-ca
+#       mountPath: /vault/userconfig/tls-ca
+#     # - type: secret
+#     #   name: kms-creds
+
+#   # This configures the Vault Statefulset to create a PVC for audit logs.
+#   # See https://www.vaultproject.io/docs/audit/index.html to know more
+#   auditStorage:
+#     enabled: true
+
+#   standalone:
+#     enabled: false
+
+#   # Run Vault in "HA" mode.
+#   ha:
+#     enabled: true
+#     replicas: 5
+#     raft:
+#       enabled: true
+#       setNodeId: true
+
+#       config: |
+#         ui = true
+#         listener "tcp" {
+#           address = "[::]:8200"
+#           cluster_address = "[::]:8201"
+#           tls_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#           tls_key_file = "/vault/userconfig/tls-server/vault.key"
+#           tls_client_ca_file = "/vault/userconfig/tls-ca/ca.crt"
+#         }
+
+#         storage "raft" {
+#           path = "/vault/data"
+#             retry_join {
+#             leader_api_addr = "https://vault-0.vault:8200"
+#             leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+#             leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#             leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+#           }
+#           retry_join {
+#             leader_api_addr = "https://vault-1.vault:8200"
+#             leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+#             leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#             leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+#           }
+#           retry_join {
+#             leader_api_addr = "https://vault-2.vault:8200"
+#             leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+#             leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#             leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+#           }
+#           retry_join {
+#               leader_api_addr = "https://vault-3.vault:8200"
+#               leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+#               leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#               leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+#           }
+#           retry_join {
+#               leader_api_addr = "https://vault-4.vault:8200"
+#               leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+#               leader_client_cert_file = "/vault/userconfig/tls-server/vault.crt"
+#               leader_client_key_file = "/vault/userconfig/tls-server/vault.key"
+#           }
+
+#         }
+
+#         service_registration "kubernetes" {}
+
+# # Vault UI
+# ui:
+#   enabled: true
+#   serviceType: "LoadBalancer"
+#   serviceNodePort: null
+#   externalPort: 8200
+
+#   # For Added Security, edit the below
+#   #loadBalancerSourceRanges:
+#   #   - < Your IP RANGE Ex. 10.0.0.0/16 >
+#   #   - < YOUR SINGLE IP Ex. 1.78.23.3/32 >
+
+

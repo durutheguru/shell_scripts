@@ -1,0 +1,78 @@
+# Vault Helm Chart Value Overrides
+global:
+  tlsDisable: false
+
+
+injector:
+  enabled: false
+
+connectInject:
+  enabled: false
+
+# certs:
+
+#     # caBundle is a base64-encoded PEM-encoded certificate bundle for the
+#     # CA that the webhook serves. This must
+#     # be set if secretName is non-null.
+#     # Here we have pasted the ca.crt encoded in base64
+#     caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRJek1EVXdNVEE1TWpZME5Gb1hEVE16TURReU9UQTVNalkwTkZvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS2p2Ck5MNmExdHlJVXJiUE8wblliRktjbnFoOHFPL2xxVjhRSm9zQjFUWi9PRGMrZ2V0d2hub0Fya25JclpLK2xqSU4KR2VaR1M3TDVoTzFiaEZ6UU5wOUxyNUNQR3NjMjk0NEJnRjV0T2pYMUJ4RGpPTGllamV1WFJKQmV3Z2xpNGxregp5SVNGdmpzQldTR29WVm1NbTdqVGllSXFYbXNwVnNvK3JxZmU3OGVlbzdMNExkMTIycUMvRWhraWRYNWdIVitIClRadXFUQW1nanl1cGtjR1h5K3dpQ3pVM20yMTBuQzZEeUxQSGRlLzZmRGYwS0ozVWpTU21Dc2g0QzJpT0pUeWEKZ0pDQU9uakRod0VyMnNTbWFpN3JNbXRHUlhveWxScjdTOW9iY24vdjdEM2JnaVpnR0xrWndtVVBaZkRYbGVIeApQSnh2Y1dGd2V5RXJBZTMyU2JrQ0F3RUFBYU5oTUY4d0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVcKQkJRcTZJcEhHc0QwaC9tYnRWMWtKQjNybVhrYm96QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFqSEZ1QTF2KwpiZXdERGVEcXdLWlkyaFFmSHFUZ0JWcllEZUs4Mzl6VzNXQ3JZclprRExUNlZQUHNKSllrRFhyTXh0WTZSZkJkCjFmNzdTZDJCcCtWVmdxRVVlUS9GYkZ3aHVnRVhIeEhXSjYxem9mbVVhK093V0FoczE5dUk2eE1MZ3VFTXZnWloKVHNyQ09ybmh5RW8xUDY4NjR6STZQbzVwNGRtWWdFL0RBMExwb0pSY3F5a0hIV1lvYlV3T0daaStGZHZBZUFENwpqQnQ0dEtqS0Z5eGhxZXpCTklBeG9BalFYREhWaEYyMEtlc3JDQ0E0ZUkveVU4bnJmNnQydzAxQ0lhemV5dnJ0CiszajliTENRR3lzOWpSSHlicENoenk4cy9ObkVKS3doeUhuekEzWWJnQ0xwcktNNU8ybjBKTTBvVjkrUU5jU28KNUNGZ2Z5MndoM0FpWnc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+
+#     # secretName is the name of the secret that has the TLS certificate and
+#     # private key to serve the injector webhook. If this is null, then the
+#     # injector will default to its automatic management mode that will assign
+#     # a service account to the injector to generate its own certificates.
+#     secretName: vault-kms-tls
+
+#     # certName and keyName are the names of the files within the secret for
+#     # the TLS cert and private key, respectively. These have reasonable
+#     # defaults but can be customized if necessary.
+#     certName: vault.crt
+#     keyName: vault.key
+
+
+
+server:
+  enabled: true
+
+  # extraEnvironmentVars is a list of extra environment variables to set with the stateful set. These could be
+  # used to include variables required for auto-unseal.
+  extraEnvironmentVars:
+    VAULT_CACERT: "/vault/userconfig/tls-ca/ca.crt"
+
+  # volumes:
+  #   - name: userconfig-vault-kms-tls
+  #     secret:
+  #       defaultMode: 420
+  #       secretName: vault-kms-tls # Matches the ${SECRET_NAME} from above
+
+  # volumeMounts:
+  #   - mountPath: /vault/userconfig/vault-kms-tls
+  #     name: userconfig-vault-kms-tls
+  #     readOnly: true
+
+  extraVolumes:
+    - type: secret
+      name: vault-kms-tls
+    - type: secret
+      name: tls-ca
+
+
+  auditStorage:
+    enabled: true
+
+
+  standalone:
+    enabled: true
+    config: |
+      listener "tcp" {
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_cert_file = "/vault/userconfig/vault-kms-tls/vault.crt"
+        tls_key_file  = "/vault/userconfig/vault-kms-tls/vault.key"
+        tls_client_ca_file = "/vault/userconfig/tls-ca/ca.crt"
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+

@@ -1,0 +1,12 @@
+#! /bin/bash
+
+read -p "Enter kube namespace: " namespace
+
+kubectl get pods -n $namespace
+
+read -p "Enter Pod name: " pod_name
+
+kubectl delete pod $pod_name -n $namespace
+
+
+

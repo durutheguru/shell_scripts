@@ -1,0 +1,15 @@
+{
+  "unseal_keys_b64": [
+    "<<unseal_key_base64>>"
+  ],
+  "unseal_keys_hex": [
+    "<<unseal_key_hex>>"
+  ],
+  "unseal_shares": 1,
+  "unseal_threshold": 1,
+  "recovery_keys_b64": [],
+  "recovery_keys_hex": [],
+  "recovery_keys_shares": 0,
+  "recovery_keys_threshold": 0,
+  "root_token": "<<root_token>>"
+}
