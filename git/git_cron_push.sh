@@ -20,6 +20,20 @@
  ## multiple directories and pushing them to remote repositories if there 
  ## are any modifications.
 
+
+
+if [ -z "${GIT_USER_NAME}" ]; then
+    echo "environment variable GIT_USER_NAME is not set or is empty"
+    exit 1
+fi
+
+
+if [ -z "${GIT_EMAIL}" ]; then
+    echo "environment variable GIT_EMAIL is not set or is empty"
+    exit 1
+fi
+
+
 # Validate that the input file exists and contains a list of directories
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <input_file>"
@@ -51,8 +65,8 @@ while IFS= read -r dir; do
     cd "$dir" || continue
     if [ "$(git status --porcelain)" ]; then
         # Commit and push changes
-        git config --global user.name "Julian Duru"
-        git config --global user.email "durutheguru@gmail.com"
+        git config --global user.name "$GIT_USER_NAME"
+        git config --global user.email "$GIT_EMAIL"
         git diff --name-status | awk '$1 == "M" {print "Updated: "$2} $1 == "A" {print "Created: "$2}' | git commit -aF -
         git pull origin "$(git branch --show-current)"
         git push origin "$(git branch --show-current)"

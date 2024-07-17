@@ -13,10 +13,10 @@
  ## namespaces.
  ## 6. Calls functions `kube_delete_pvs` and `kube_delete_mwc`.
  ## 7. Changes the directory to 
- ## `/Users/dduru/VSCode/Private/scripts/bash/vault/setup_single_instance`
+ ## `./setup_single_instance`
  ## and removes the `cluster-keys.json` file.
  ## 8. Changes the directory to 
- ## `/Users/dduru/VSCode/Private/scripts/bash/vault/setup_multi_instance` 
+ ## `../setup_multi_instance` 
  ## and removes the `cluster-keys.json` file.
  ## 
  ## Overall, this script is intended to clean up various resources 
@@ -46,10 +46,10 @@ kube_delete_pvs
 
 kube_delete_mwc
 
-cd /Users/dduru/VSCode/Private/scripts/bash/vault/setup_single_instance
+cd ./setup_single_instance
 rm cluster-keys.json
 
-cd /Users/dduru/VSCode/Private/scripts/bash/vault/setup_multi_instance
+cd ../setup_multi_instance
 rm cluster-keys.json
 
 

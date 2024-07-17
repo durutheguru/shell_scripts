@@ -1,5 +1,7 @@
+#!/bin/bash
 
-cd /Users/dduru/VSCode/Private/scripts/bash/vault/setup_single_instance
+
+cd ./setup_single_instance
 bash ./vault_kms_tls_setup.sh
 
 bash ./vault_kms_install.sh
@@ -58,7 +60,7 @@ path \"transit/decrypt/autounseal\" {
 }
 EOF"
 
-cd /Users/dduru/VSCode/Private/scripts/bash/vault/setup_multi_instance
+cd ../setup_multi_instance
 bash ./tls_setup.sh
 
 kubectl apply -f auth_service_account.yaml
