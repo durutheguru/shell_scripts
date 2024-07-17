@@ -29,11 +29,12 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
 
 ## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/durutheguru/shell_scripts.git
-2. Next cd into the shell_scripts directory on your terminal and then run `make`. This should install the `install_script.sh` file that allows you to install other shell scripts. 
-3. You might want to look at the `install_script.sh` file found in the misc folder. The script installs other shell scripts by copying them to the `/usr/local/bin` folder and adding an alias to the bash_profile with the script name.
+1. Clone the Repository:
+   ```
+   $ git clone https://github.com/durutheguru/shell_scripts.git
+   ``` \
+2. Next cd into the shell_scripts directory on your terminal and then run `make`. This should install the `install_script.sh` file that allows you to install other shell scripts.  \
+3. You might want to look at the `install_script.sh` file found in the misc folder. The script installs other shell scripts by copying them to the `/usr/local/bin` folder and adding an alias to the bash_profile with the script name. \
    ```
    file=$1
    
@@ -49,15 +50,15 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
      echo "alias $file_name='bash /usr/local/bin/$file'" >> ~/.bash_profile
      echo "Installation successful..."
    fi
-   ```
-4. To install a script, simply invoke: `$ install_script <<script file name>>`
-5. The `install_script` automatically refreshes the terminal, but in some cases, you may need to do a manual reload with either `bash -l` or `source ~/.bash_profile`
-6. After successful installation, you should be able to invoke the script from your terminal by the file name.
+   ``` \
+4. To install a script, simply invoke: `$ install_script <<script file name>>` \
+5. The `install_script` automatically refreshes the terminal, but in some cases, you may need to do a manual reload with either `bash -l` or `source ~/.bash_profile` \
+6. After successful installation, you should be able to invoke the script from your terminal by the file name. \
 
 
 ## Usage
 
-Here's an example that installs `find_file.sh` located in the misc folder. find_file is a shell script that searches a directory for a file name. 
+Here's an example that installs `find_file.sh` located in the misc folder. find_file is a shell script that searches a directory for a file name. \
 ```
 $ install_script find_file.sh
 $ find_file <<directory>> <<file_name>>  ## can be called from any path, context or terminal on the local machine
