@@ -52,7 +52,7 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
    fi
    ```   
 4. To install a script, simply invoke: `$ install_script <<script file name>>`   
-5. The `install_script` automatically refreshes the terminal, but in some cases, you may need to do a manual reload with either `bash -l` or `source ~/.bash_profile`   
+5. The `install_script` automatically refreshes the terminal, but in some cases, you may need to do a manual reload.
 6. After successful installation, you should be able to invoke the script from your terminal by the file name.   
 
 
