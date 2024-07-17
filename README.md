@@ -12,7 +12,7 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
 - [Contact](#contact)
 
 
-### Features
+## Features
 - **Ease of Use**: Simple and intuitive scripts with clear instructions.
 - **Productivity Boost**: Automate repetitive tasks to save time and reduce errors.
 - **Versatile**: Suitable for various development environments and use cases.
@@ -20,14 +20,14 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
 
 
 
-### Prerequisites
+## Prerequisites
 
 - **Bash**: Most of the scripts are Bash scripts, so you will need to have a Bash interpreter installed on your local. 
 - **Permissions**: Ensure you have the necessary permissions to execute shell scripts. Or, you could run a chmod command to update permissions. 
 
 
 
-### Installation
+## Installation
 
 1. **Clone the Repository**:
    ```bash
@@ -55,7 +55,7 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
 6. After successful installation, you should be able to invoke the script from your terminal by the file name.
 
 
-### Usage
+## Usage
 
 Here's an example that installs `find_file.sh` located in the misc folder. find_file is a shell script that searches a directory for a file name. 
 ```
@@ -64,12 +64,12 @@ $ find_file <<directory>> <<file_name>>  ## can be called from any path, context
 ```
 
 
-### Contributing
+## Contributing
 
 Read the [CONTRIBUTING.md](https://github.com/durutheguru/shell_scripts/blob/main/CONTRIBUTING.md) file
 
 
-### Contact
+## Contact
 
 Feel free to raise issues if you find bugs in the script. I'll do my best to address them. 
 
