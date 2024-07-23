@@ -71,7 +71,7 @@ Read the [CONTRIBUTING.md](https://github.com/durutheguru/shell_scripts/blob/mai
 
 ## Contact
 
-Feel free to raise issues if you find bugs in the script. I'll do my best to address them. 
+Feel free to raise issues if you find bugs in the script. I'll do my best to address them. You can also reach me here: durutheguru@gmail.com
 
 
 
