@@ -1,0 +1,27 @@
+#List auths
+gcloud auth list
+
+
+#List projects
+gcloud config list project
+
+
+#Set project
+gcloud config set project qwiklabs-gcp-00-d87d4cba938e
+
+
+#Create spanner instance
+gcloud spanner instances create test-spanner-instance --config=regional-us-east1 --description="test-spanner-instance" --processing-units=100
+
+
+#List spanner instances
+gcloud spanner instances list
+
+
+#Run sql file against spanner instance
+gcloud spanner databases create pets-db --instance=test-spanner-instance --database-dialect=GOOGLE_STANDARD_SQL --ddl-file=./pets-db-schema.sql
+
+
+#Table insert
+gcloud spanner rows insert --table=Owners --database=pets-db --instance=test-spanner-instance --data=OwnerID=$owner_uuid,OwnerName=Doug
+
