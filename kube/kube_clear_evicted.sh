@@ -13,9 +13,13 @@ else
   read -p "Enter Pod namespace: " namespace
 fi
 
-# Delete pods in Evicted state
+
 delete_pods_by_state "$namespace" "Evicted"
 
-# Delete pods in Error state
 delete_pods_by_state "$namespace" "Error"
+
+delete_pods_by_state "$namespace" "ContainerStatusUnknown"
+
+delete_pods_by_state "$namespace" "CrashLoopBackOff"
+
 

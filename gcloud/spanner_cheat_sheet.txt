@@ -25,3 +25,15 @@ gcloud spanner databases create pets-db --instance=test-spanner-instance --datab
 #Table insert
 gcloud spanner rows insert --table=Owners --database=pets-db --instance=test-spanner-instance --data=OwnerID=$owner_uuid,OwnerName=Doug
 
+
+#Select statement
+gcloud spanner databases execute-sql pets-db --instance=test-spanner-instance --sql='SELECT o.OwnerID, o.OwnerName FROM Owners o'
+
+
+#Delete database
+gcloud spanner databases delete pets-db --instance=test-spanner-instance 
+
+
+#Delete instance
+gcloud spanner instances delete test-spanner-instance --quiet
+

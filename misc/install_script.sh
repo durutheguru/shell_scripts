@@ -40,22 +40,36 @@ fi
 
 file=$1
 
-chmod +rwx $file
-
-cp $file /usr/local/bin
-
-file_name=${file%%.*}
-
-if grep -q "$file" "$bash_profile_path"; then
-  echo "Updated Installation..."
-else
-  echo "alias $file_name='bash /usr/local/bin/$file'" >> ~/.bash_profile
-  echo "Installation successful..."
+if [[ ! -f "$file" ]]; then
+    echo "Error: File '$file' does not exist."
+    exit 1
 fi
 
-if [[ $# == 1 || $2 == "-r" ]]
-then
-  bash -l
+# Make the file readable, writable, and executable
+chmod +rwx "$file"
+
+# Copy the file to /usr/local/bin
+cp "$file" /usr/local/bin || {
+    echo "Error: Failed to copy file to /usr/local/bin."
+    exit 1
+}
+
+file_name=$(basename "$file" .sh)
+
+# Define the path to the bash profile
+bash_profile_path="$HOME/.bash_profile"
+
+# Check if the alias already exists in the bash profile
+if grep -q "alias $file_name=" "$bash_profile_path"; then
+    echo "Updated Installation..."
+else
+    echo "alias $file_name='bash /usr/local/bin/${file_name}.sh'" >> "$bash_profile_path"
+    echo "Installation successful..."
+fi
+
+# Check if the second argument is -r and restart the shell if true
+if [[ $# -eq 1 || $2 == "-r" ]]; then
+    exec bash -l
 fi
 
 
