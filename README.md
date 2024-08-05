@@ -1,5 +1,4 @@
 # Overview
-This repository contains different shell scripts to automate various tasks on a shell terminal. 
 Welcome to the **shell scripts** repository, a collection of powerful and easy-to-use scripts designed to automate various tasks and make a developer's life easier! Whether you're looking to streamline your workflow, manage your environment, or perform repetitive tasks effortlessly, shell scripts has got you covered.
 
 
@@ -23,7 +22,7 @@ Welcome to the **shell scripts** repository, a collection of powerful and easy-t
 ## Prerequisites
 
 - **Bash**: Most of the scripts are Bash scripts, so you will need to have a Bash interpreter installed on your local. 
-- **Permissions**: Ensure you have the necessary permissions to execute shell scripts. Or, you could run a chmod command to update permissions. 
+- **Permissions**: Ensure you have the necessary permissions to execute shell scripts. Or, you could run a `chmod` command to update permissions. 
 
 
 
@@ -72,7 +71,7 @@ Read the [CONTRIBUTING.md](https://github.com/durutheguru/shell_scripts/blob/mai
 
 ## Contact
 
-Feel free to raise issues if you find bugs in the script. I'll do my best to address them. 
+Feel free to raise issues if you find bugs in the script. I'll do my best to address them. You can also reach me here: durutheguru@gmail.com
 
 
 
