@@ -1,0 +1,17 @@
+#Update Conda
+conda update conda
+
+
+#Update package
+conda update [[package_name]]
+
+
+#View all packages and versions
+conda list
+
+
+#Create environment from File
+conda env create -f [[file_name]]
+
+
+

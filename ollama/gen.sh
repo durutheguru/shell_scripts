@@ -9,7 +9,7 @@ get_user_prompt() {
 
 # Function to run ollama and get the response
 run_ollama() {
-    response=$(ollama run "$model_name" "Generate a file for me. $prompt . Your output should ONLY include the file contents, no extra strings.")
+    response=$(ollama run "$model_name" "Generate a file for me. $prompt . Don't explain your output. Your output should ONLY include the file contents, no extra strings.")
     filtered_response=$(echo "$response" | grep -v '^```')
     echo -e "\n>> Response from LLM:\n"
     echo -e "$filtered_response\n\n"
@@ -24,7 +24,10 @@ run_ollama() {
 # Function to run the generated script
 run_script() {
     # echo $filtered_response | bash
-    eval "$filtered_response"
+    read -p "Do you want to test run the generated script? (yes/no): " run
+    if [[ "$run" == "yes" ]]; then
+        eval "$filtered_response"
+    fi
 }
 
 # Function to get user confirmation

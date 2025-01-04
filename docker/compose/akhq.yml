@@ -1,0 +1,23 @@
+
+version: '3.1'
+
+services:
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: <<server_url>>
+                security.protocol: SASL_SSL
+                sasl.mechanism: PLAIN
+                sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='<<username>>' password='<<password>>';
+
+    ports:
+      - "8182:8080"
+    
+
+

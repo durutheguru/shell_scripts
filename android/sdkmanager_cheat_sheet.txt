@@ -1,0 +1,64 @@
+
+
+brew install android-platform-tools
+
+adb devices
+
+
+cd /Users/dduru/Documents/Setups/cmdline-tools/latest/bin
+
+
+
+# List sdks
+sdkmanager --list
+
+
+# Update
+sdkmanager --update
+
+# Install platform tools
+sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+sdkmanager "system-images;android-33;google_apis;x86_64"
+sdkmanager "system-images;android-33;google_apis;arm64-v8a"
+
+
+export ANDROID_HOME=/path/to/your/android/sdk
+export ANDROID_HOME="/Users/$USER/Library/Android/sdk"
+export ANDROID_SDK_ROOT=$ANDROID_HOME
+export ANDROID_AVD_HOME=/Users/$USER/.android/avd
+    
+
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_AVD_HOME
+
+>> emulator
+
+emulator -list-avds
+
+
+emulator -avd Pixel_5_API_33
+
+
+avdmanager list device
+
+
+avdmanager create avd \
+    --name Pixel_5_API_33 \
+    --device "pixel_5" \
+    --package "system-images;android-33;google_apis;x86_64" \
+    --tag "google_apis" \
+    --abi "x86_64"
+
+avdmanager create avd \
+    --name Pixel_5_API_33_ARM \
+    --device "pixel_5" \
+    --package "system-images;android-33;google_apis;arm64-v8a" \
+    --tag "google_apis" \
+    --abi "arm64-v8a" \
+    --force
+
+
+emulator -list-avds

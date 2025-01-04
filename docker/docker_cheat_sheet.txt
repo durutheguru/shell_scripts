@@ -1,0 +1,24 @@
+#List all builders
+docker buildx ls
+
+
+#Create a new builder
+docker buildx create --name multi-platform-builder \
+   --driver docker-container --use
+
+
+#Inspect and bootstrap
+docker buildx inspect --bootstrap
+
+
+#Build and push multi-platform image
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t gcr.io/julianduru-staging/mpg:v4 \
+  --push \
+  .
+
+
+#Verify Domain Name SSL Certificate
+echo | openssl s_client -showcerts -servername [[domain_name]] -connect [[load_balancer_ip]]:443 -verify 99 -verify_return_error
+

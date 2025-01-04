@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/689044134530984445/27aead3077544ba18cceadc169a15602/artifacts
+deleted_time: 1732141107440
+end_time: 1731959725195
+entry_point_name: ''
+experiment_id: '689044134530984445'
+lifecycle_stage: deleted
+run_id: 27aead3077544ba18cceadc169a15602
+run_name: apples_rf_test
+run_uuid: 27aead3077544ba18cceadc169a15602
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1731959720061
+status: 3
+tags: []
+user_id: dduru

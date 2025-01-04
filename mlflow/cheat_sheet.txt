@@ -1,0 +1,35 @@
+##Cli reference
+##https://mlflow.org/docs/latest/cli.html
+
+
+#Install MLFlow (pip)
+pip install mlflow
+
+
+#Install MLFlow (conda)
+conda install mlflow
+
+
+#Start MLFlow Server
+mlflow server --host [[host]] --port [[port]]
+
+
+#Serve a Model
+mlflow models serve -m runs:/[[run_id]]/[[model_name]] -p 5000
+
+
+#Serve a Model with mlserver
+mlflow models serve -m runs:/[[run_id]]/[[model_name]] -p 5000 --enable-mlserver
+
+
+#Set Tracking Server URI
+export MLFLOW_TRACKING_URI=[[uri]]
+
+
+#Online Prediction
+curl http://127.0.0.1:5000/invocations -H "Content-Type:application/json"  --data '{"inputs": [[1, 2], [3, 4], [5, 6]]}'
+
+
+#Batch Prediction
+mlflow models predict -m runs:/[[run_id]]/[[model_name]] -i [[input_json_path]] -o [[output_json_path]]
+

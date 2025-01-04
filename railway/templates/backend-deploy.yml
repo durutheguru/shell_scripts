@@ -1,0 +1,69 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+    
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+  
+      - name: Run Integration Tests
+        run: ./gradlew clean test
+        working-directory: ./backend
+
+  deploy:
+    needs: [build-test]
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SVC_ID: backend
+      RAILWAY_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.RAILWAY_PROD_TOKEN || secrets.RAILWAY_STAGING_TOKEN }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+    
+      # Set environment based on the branch
+      - name: Set Environment Variables
+        id: set_env
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "RAILWAY_ENV_ID=${{ secrets.RAILWAY_PROD_ENV_ID }}" >> $GITHUB_ENV
+          else
+            echo "RAILWAY_ENV_ID=${{ secrets.RAILWAY_STAGING_ENV_ID }}" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Railway
+        run: railway up --verbose --service=${{ env.SVC_ID }} --environment=${{ env.RAILWAY_ENV_ID }}
+        working-directory: ./backend
+
+      # Deploy to the appropriate environment in the same project
+      - name: Activate Domain
+        run: |
+          unset RAILWAY_TOKEN
+          railway link -p $RAILWAY_PROJECT_NAME -e $RAILWAY_ENV_ID -s ${{ env.SVC_ID }}
+          railway domain || true
+        env:
+          RAILWAY_ENV_ID: ${{ env.RAILWAY_ENV_ID }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          RAILWAY_PROJECT_NAME: ${{ secrets.RAILWAY_PROJECT_NAME }}
+        working-directory: ./backend
+
+
+
+

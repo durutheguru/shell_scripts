@@ -1,0 +1,67 @@
+name: Deploy Frontend to Railway
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build project
+        working-directory: ./frontend
+        run: npm run build
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      SVC_ID: frontend
+      RAILWAY_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.RAILWAY_PROD_TOKEN || secrets.RAILWAY_STAGING_TOKEN }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      # Set environment based on the branch
+      - name: Set Environment Variables
+        id: set_env
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "RAILWAY_ENV_ID=${{ secrets.RAILWAY_PROD_ENV_ID }}" >> $GITHUB_ENV
+          else
+            echo "RAILWAY_ENV_ID=${{ secrets.RAILWAY_STAGING_ENV_ID }}" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Railway
+        working-directory: ./frontend
+        run: railway up --verbose --service=${{ env.SVC_ID }} --environment=${{ env.RAILWAY_ENV_ID }} || true
+
+      - name: Activate Domain
+        working-directory: ./frontend
+        run: |
+          unset RAILWAY_TOKEN
+          railway link -p $RAILWAY_PROJECT_NAME -e $RAILWAY_ENV_ID -s ${{ env.SVC_ID }}
+          railway domain || true
+        env:
+          RAILWAY_ENV_ID: ${{ env.RAILWAY_ENV_ID }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          RAILWAY_PROJECT_NAME: ${{ secrets.RAILWAY_PROJECT_NAME }}
+

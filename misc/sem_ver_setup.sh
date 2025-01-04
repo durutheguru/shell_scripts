@@ -32,12 +32,12 @@
  ## consistency and best practices in managing branches and versioning.
 
 
-git fetch origin master
+git fetch origin main
 git fetch origin develop
 
 git flow init
-
 gitversion init
 
-git push -u origin master
+git push -u origin main
 git push -u origin develop
+

@@ -1,0 +1,2 @@
+#Create vite project
+npm create vite@latest [[project_name]] -- --template [[template]]

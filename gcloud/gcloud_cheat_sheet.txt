@@ -1,0 +1,136 @@
+#List Configurations
+gcloud config list
+
+
+#List Projects
+gcloud projects list
+
+
+Set Active Project
+gcloud config set project [[project_id]]
+
+
+#List Service Accounts
+gcloud iam service-accounts list
+
+
+#View IAM Policy Bindings
+gcloud projects get-iam-policy [[project_id]]
+
+
+#Add IAM Policy Binding to Service Account member
+gcloud projects add-iam-policy-binding [[project_id]] \
+    --member=serviceAccount:[[service_account_email]] \
+    --role=roles/compute.viewer
+
+
+#Add IAM Policy Binding to User
+gcloud projects add-iam-policy-binding [[project_id]] \
+    --member=user:[[user_email]] \
+    --role=roles/compute.viewer
+
+
+#Create and download the key file
+gcloud iam service-accounts keys create [[file_path_json]] \
+    --iam-account=[[service_account_email]]
+
+
+#TODO: script to switch service account or user account and apply the credential.json file in GOOGLE_APPLICATION_CREDENTIALS
+
+
+#Create GCP Network
+gcloud compute networks create [[network_name]]
+
+
+#Create GCP Subnetwork
+gcloud compute networks subnets create [[subnet_name]] \
+    --network=[[network_name]] \
+    --region=[[region]] \
+    --range=[[ip_range]]
+
+
+#Create Firewall Rules
+gcloud compute firewall-rules create [[firewall_name]] --network [[network_name]] --allow tcp,udp,icmp --source-ranges [[source_ip_range]]
+gcloud compute firewall-rules create [[firewall_name]] --network [[network_name]] --allow tcp:22,tcp:3389,icmp
+
+
+#Display Regions
+gcloud compute regions list
+
+
+#Enable Serial Port logging for a project
+gcloud compute project-info add-metadata \
+    --metadata serial-port-logging-enable=true
+
+
+#Enable Serial Port logging for an instance
+gcloud compute instances add-metadata INSTANCE_NAME \
+    --metadata serial-port-logging-enable=true
+
+
+#List Services
+systemctl list-units --type=service
+
+
+#View Logs on Service
+journalctl -u [[service_name]].service
+
+
+#Enable API
+gcloud services enable [[api_url]] --project=[[project_name]]
+
+
+#Cloud SQL Setup
+gcloud services enable sqladmin.googleapis.com --project=[[project_name]]
+
+
+#Cloud SQL List DB Tiers
+gcloud sql tiers list
+
+
+#List VPC Peerings
+gcloud compute networks peerings list --project="[[project_id]]
+
+
+#Delete VPC Peerings
+gcloud compute networks peerings delete [[peering_name]] --network=[[network_name]] --project=[[project_id]]
+
+
+#Get Current Project
+gcloud config list --format 'value(core.project)'
+
+
+#Create Cloud Storage Bucket
+PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+BUCKET_NAME="gs://${PROJECT_ID}-bucketmpg"
+gsutil mb -l us-central1 $BUCKET_NAME
+
+
+
+#List Artifact Repository Locations
+gcloud artifacts locations list
+
+
+#Create Artifact Repository
+gcloud artifacts repositories create [[repository_name]] \
+      --repository-format=[[repository_format]] \
+      --location=[[repository_location]] \
+      --description="[[description]]" \
+      --kms-key=[[kms_key]] \
+      --async
+
+
+#Set Quota Project
+gcloud auth application-default set-quota-project [[project_id]]
+
+
+#List Gcloud clusters
+gcloud container clusters list
+
+
+#Refresh Kube auth context
+gcloud container clusters get-credentials [[cluster_name]] --zone [[zone]] --project [[project_id]]
+
+
+#Simple VM Traffic gen
+timeout 120 bash -c -- 'while true; do curl localhost; sleep $((RANDOM % 4)) ; done'
