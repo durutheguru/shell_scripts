@@ -83,16 +83,24 @@ def extract_website_content(url):
         print(f"Error fetching website content: {e}")
         return None, None
 
-def create_chat_messages(title, content):
-    """Create the initial chat messages with website content."""
+def create_summary_prompt(title, content):
+    """Create the initial prompt for a short summary of the website."""
     return [
         {
             "role": "system",
-            "content": "You are an assistant that analyzes the contents of a website and provides and answers relevant questions, ignoring text that might be navigation-related"
+            "content": (
+                "You are an assistant that analyzes the contents of a website "
+                "and provides relevant information while ignoring navigation-related text."
+            )
         },
         {
             "role": "user",
-            "content": f"The contents of this website is as follows;\nTitle: {title}\nContent: {content}\nPlease provide a short single paragraph summary of this website"
+            "content": (
+                f"The contents of this website is as follows:\n"
+                f"Title: {title}\n"
+                f"Content: {content}\n"
+                "Please provide a short single paragraph summary of this website."
+            )
         }
     ]
 
@@ -102,14 +110,17 @@ def main():
         print("Ollama is not installed. Installing now...")
         install_ollama()
     
-    MODEL="llama3.2"
+    MODEL = "llama3.2"
     # Check and pull the model
     check_and_pull_model(MODEL)
     
     # Import ollama after ensuring installation
     import ollama
     
-    # Get website URL from user
+    # This list holds the conversation for the current session only.
+    messages = []
+    
+    # Ask user for website URL
     url = input("Please enter the website URL to analyze: ")
     title, content = extract_website_content(url)
     
@@ -117,13 +128,20 @@ def main():
         print("Failed to extract website content. Exiting...")
         return
     
-    # Create initial messages and get summary
-    messages = create_chat_messages(title, content)
+    # Create initial messages for summary
+    summary_prompt = create_summary_prompt(title, content)
+    messages.extend(summary_prompt)
     
     # Get initial summary
     response = ollama.chat(model=MODEL, messages=messages)
+    assistant_content = response['message']['content']
+    
+    # Add the assistant's summary to the conversation
+    messages.append({"role": "assistant", "content": assistant_content})
+    
     print("\nWebsite Summary:")
-    print(response['message']['content'])
+    print(assistant_content)
+    
     print("\nYou can now ask questions about the website content. Type 'exit' to quit.")
     
     # Interactive chat loop
@@ -139,12 +157,13 @@ def main():
         
         # Get response from Ollama
         response = ollama.chat(model=MODEL, messages=messages)
+        assistant_reply = response['message']['content']
         
         # Print response
-        print("\nAssistant:", response['message']['content'])
+        print("\nAssistant:", assistant_reply)
         
         # Add assistant's response to messages for context
-        messages.append(response['message'])
+        messages.append({"role": "assistant", "content": assistant_reply})
 
 if __name__ == "__main__":
     main()
