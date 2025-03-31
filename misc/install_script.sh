@@ -28,17 +28,13 @@
  ## and allows for starting a new login shell optionally.
 
 REQUIRED_ARG_LENGTH=1
-bash_profile_path=~/.bash_profile
-bash_profile_content=`cat $bash_profile_path`
 
-if [ $# -lt $REQUIRED_ARG_LENGTH  ];
-then
-  echo "Usage `basename $0`: <file_name.ext>" >&2
+if [ $# -lt $REQUIRED_ARG_LENGTH ]; then
+  echo "Usage $(basename "$0"): <file_name.ext>" >&2
   exit 1
 fi
 
-
-file=$1
+file="$1"
 
 if [[ ! -f "$file" ]]; then
     echo "Error: File '$file' does not exist."
@@ -49,27 +45,49 @@ fi
 chmod +rwx "$file"
 
 # Copy the file to /usr/local/bin
-cp "$file" /usr/local/bin || {
+sudo cp "$file" /usr/local/bin || {
     echo "Error: Failed to copy file to /usr/local/bin."
     exit 1
 }
 
 file_name=$(basename "$file" .sh)
 
-# Define the path to the bash profile
-bash_profile_path="$HOME/.bash_profile"
+# Define shell profile paths
+bash_profile="$HOME/.bash_profile"
+zsh_profile="$HOME/.zshrc"
 
-# Check if the alias already exists in the bash profile
-if grep -q "alias $file_name=" "$bash_profile_path"; then
-    echo "Updated Installation..."
-else
-    echo "alias $file_name='bash /usr/local/bin/${file_name}.sh'" >> "$bash_profile_path"
-    echo "Installation successful..."
+# Define alias command
+alias_command="alias $file_name='bash /usr/local/bin/${file_name}.sh'"
+
+# Function to add alias if it doesn't already exist
+add_alias_if_needed() {
+    local profile_path="$1"
+    if [ -f "$profile_path" ]; then
+        if grep -q "alias $file_name=" "$profile_path"; then
+            echo "Alias '$file_name' already exists in $(basename "$profile_path"), skipping..."
+        else
+            echo "$alias_command" >> "$profile_path"
+            echo "Added alias '$file_name' to $(basename "$profile_path")..."
+        fi
+    else
+        # Create profile file and add alias if not existing
+        echo "$alias_command" >> "$profile_path"
+        echo "Created $(basename "$profile_path") and added alias '$file_name'..."
+    fi
+}
+
+# Add alias to bash and zsh profiles
+add_alias_if_needed "$bash_profile"
+add_alias_if_needed "$zsh_profile"
+
+echo "Installation successful."
+
+# Restart shell if requested with '-r'
+if [[ "$2" == "-r" ]]; then
+    current_shell=$(basename "$SHELL")
+    echo "Restarting $current_shell..."
+    exec "$SHELL" -l
 fi
 
-# Check if the second argument is -r and restart the shell if true
-if [[ $# -eq 1 || $2 == "-r" ]]; then
-    exec bash -l
-fi
 
 
